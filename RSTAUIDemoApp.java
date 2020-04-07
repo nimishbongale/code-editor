@@ -6,7 +6,6 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.text.BadLocationException;
 
 import org.fife.rsta.ui.CollapsibleSectionPanel;
-//import org.fife.rsta.ui.DocumentMap;
 import org.fife.rsta.ui.GoToDialog;
 import org.fife.rsta.ui.SizeGripIcon;
 import org.fife.rsta.ui.search.FindDialog;
@@ -15,24 +14,11 @@ import org.fife.rsta.ui.search.ReplaceToolBar;
 import org.fife.rsta.ui.search.SearchEvent;
 import org.fife.rsta.ui.search.SearchListener;
 import org.fife.rsta.ui.search.FindToolBar;
-import org.fife.ui.rsyntaxtextarea.ErrorStrip;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
-import org.fife.ui.rtextarea.SearchContext;
-import org.fife.ui.rtextarea.SearchEngine;
-import org.fife.ui.rtextarea.SearchResult;
+import org.fife.ui.autocomplete.*;
+import org.fife.ui.rtextarea.*;
+import org.fife.ui.rsyntaxtextarea.*;
 
 
-/**
- * An application that demonstrates use of the RSTAUI project.  Please don't
- * take this as good application design; it's just a simple example.<p>
- *
- * Unlike the library itself, this class is public domain.
- *
- * @author Robert Futrell
- * @version 1.0
- */
 public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
 	private CollapsibleSectionPanel csp;
@@ -64,18 +50,48 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
 		ErrorStrip errorStrip = new ErrorStrip(textArea);
 		contentPane.add(errorStrip, BorderLayout.LINE_END);
-//org.fife.rsta.ui.DocumentMap docMap = new org.fife.rsta.ui.DocumentMap(textArea);
-//contentPane.add(docMap, BorderLayout.LINE_END);
 
 		statusBar = new StatusBar();
 		contentPane.add(statusBar, BorderLayout.SOUTH);
+       try {
+            Theme theme = Theme.load(getClass().getResourceAsStream("/lib/dark.xml"));
+            theme.apply(textArea);
+            } 
+            catch (Exception ioe) { // Never happens
+                ioe.printStackTrace();
+            }
+        
+		CompletionProvider provider = createCompletionProvider();
+        AutoCompletion ac = new AutoCompletion(provider);
+        ac.install(textArea);
 
-		setTitle("RSTAUI Demo Application");
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		pack();
-		setLocationRelativeTo(null);
-
+      setContentPane(contentPane);
+      setTitle("N45Editor");
+      setDefaultCloseOperation(EXIT_ON_CLOSE);
+      pack();
+      setLocationRelativeTo(null);
 	}
+
+     private CompletionProvider createCompletionProvider() {
+      DefaultCompletionProvider provider = new DefaultCompletionProvider();
+      provider.addCompletion(new BasicCompletion(provider, "abstract"));
+      provider.addCompletion(new BasicCompletion(provider, "assert"));
+      provider.addCompletion(new BasicCompletion(provider, "break"));
+      provider.addCompletion(new BasicCompletion(provider, "case"));
+      provider.addCompletion(new BasicCompletion(provider, "transient"));
+      provider.addCompletion(new BasicCompletion(provider, "try"));
+      provider.addCompletion(new BasicCompletion(provider, "void"));
+      provider.addCompletion(new BasicCompletion(provider, "volatile"));
+      provider.addCompletion(new BasicCompletion(provider, "while"));
+
+      provider.addCompletion(new ShorthandCompletion(provider, "sysout",
+            "System.out.println(", "System.out.println("));
+      provider.addCompletion(new ShorthandCompletion(provider, "syserr",
+            "System.err.println(", "System.err.println("));
+
+      return provider;
+
+   }
 
 
 	private void addItem(Action a, ButtonGroup bg, JMenu menu) {
@@ -87,8 +103,36 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
 	private JMenuBar createMenuBar() {
 
-		JMenuBar mb = new JMenuBar();
-		JMenu menu = new JMenu("Search");
+        JMenuBar mb = new JMenuBar();
+		JMenu menu; 
+
+        menu = new JMenu("  File  ");
+        menu.add(new JMenuItem("New File"));
+		menu.add(new JMenuItem("New Window"));
+        menu.add(new JMenuItem("Open File"));
+        menu.add(new JMenuItem("Open Folder"));
+        menu.add(new JMenuItem("Save"));
+        menu.add(new JMenuItem("Save as"));
+        menu.add(new JMenuItem("Exit"));
+		mb.add(menu);
+
+        menu = new JMenu("  Edit  ");
+        menu.add(new JMenuItem("Undo"));
+		menu.add(new JMenuItem("Redo"));
+        menu.add(new JMenuItem("Cut"));
+        menu.add(new JMenuItem("Copy"));
+        menu.add(new JMenuItem("Paste"));
+		mb.add(menu);
+
+        menu = new JMenu("  View  ");
+		ButtonGroup bg = new ButtonGroup();
+		LookAndFeelInfo[] infos = UIManager.getInstalledLookAndFeels();
+		for (LookAndFeelInfo info : infos) {
+			addItem(new LookAndFeelAction(info), bg, menu);
+		}
+		mb.add(menu);
+
+        menu= new JMenu("  Search  ");
 		menu.add(new JMenuItem(new ShowFindDialogAction()));
 		menu.add(new JMenuItem(new ShowReplaceDialogAction()));
 		menu.add(new JMenuItem(new GoToLineAction()));
@@ -104,19 +148,21 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		a = csp.addBottomComponent(ks, replaceToolBar);
 		a.putValue(Action.NAME, "Show Replace Search Bar");
 		menu.add(new JMenuItem(a));
-
 		mb.add(menu);
 
-		menu = new JMenu("LookAndFeel");
-		ButtonGroup bg = new ButtonGroup();
-		LookAndFeelInfo[] infos = UIManager.getInstalledLookAndFeels();
-		for (LookAndFeelInfo info : infos) {
-			addItem(new LookAndFeelAction(info), bg, menu);
-		}
+        menu = new JMenu("  Run  ");
+        menu.add(new JMenuItem("New Terminal"));
+		menu.add(new JMenuItem("Default run current file"));
+		mb.add(menu);
+
+        menu = new JMenu("  Help  ");
+        menu.add(new JMenuItem("Documentation"));
+		menu.add(new JMenuItem("License"));
+        menu.addSeparator();
+        menu.add(new JMenuItem("About"));
 		mb.add(menu);
 
 		return mb;
-
 	}
 
 
@@ -207,7 +253,6 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		SwingUtilities.invokeLater(() -> {
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//					UIManager.setLookAndFeel("org.pushingpixels.substance.api.skin.SubstanceGraphiteAquaLookAndFeel");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -344,8 +389,5 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		void setLabel(String label) {
 			this.label.setText(label);
 		}
-
 	}
-
-
 }

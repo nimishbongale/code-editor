@@ -103,6 +103,30 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		menu.add(item);
 	}
 
+	private void saveFile(JMenuItem savefile){
+		 JFileChooser fileChoose = new JFileChooser();
+        int option = fileChoose.showSaveDialog(savefile);
+
+        /*
+             * ShowSaveDialog instead of showOpenDialog if the user clicked OK
+             * (and not cancel)
+         */
+        if (option == JFileChooser.APPROVE_OPTION) {
+            try {
+                File openFile = fileChoose.getSelectedFile();
+                setTitle("N45Editor"+" | "+openFile.getName());
+
+                BufferedWriter out = new BufferedWriter(new FileWriter(openFile.getPath()));
+                out.write(textArea.getText());
+                out.close();
+                // edit = false;
+            } catch (Exception ex) { // again, catch any exceptions and...
+                // ...write to the debug console
+                System.err.println(ex.getMessage());
+            }
+        }
+	}
+
 
 	private JMenuBar createMenuBar() {
 
@@ -136,13 +160,42 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
             }
     	}
 		});
+
+		JMenuItem newfile=new JMenuItem("New File");
+		newfile.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+             Object[] options = {"Save", "No Save", "Return"};
+                int n = JOptionPane.showOptionDialog(newfile, "Do you want to save the file at first ?", "Question",
+                        JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
+                if (n == 0) {// save
+                    saveFile(newfile);
+                    //edit = false;
+                } else if (n == 1) {
+                    //edit = false;
+                    textArea.setText(" ");
+                }
+             else {
+                textArea.setText(" ");
+            }
+    	}
+		});
+
+
+
+		JMenuItem savefile=new JMenuItem("Save File");
+		savefile.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			saveFile(savefile);
+		}
+		});
+
         menu = new JMenu("  File  ");
 
-		menu.add(new JMenuItem("New File"));
+		menu.add(newfile);
         menu.add(new JMenuItem("New Window"));
 		menu.add(openfile);
         menu.add(new JMenuItem("Open Folder"));
-        menu.add(new JMenuItem("Save"));
+        menu.add(savefile);
         menu.add(new JMenuItem("Save as"));
         menu.add(new JMenuItem("Exit"));
 		mb.add(menu);
@@ -210,6 +263,8 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 	/**
 	 * Creates our Find and Replace dialogs.
 	 */
+
+	 
 	private void initSearchDialogs() {
 
 		findDialog = new FindDialog(this, this);

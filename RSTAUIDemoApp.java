@@ -18,6 +18,9 @@ import org.fife.ui.autocomplete.*;
 import org.fife.ui.rtextarea.*;
 import org.fife.ui.rsyntaxtextarea.*;
 
+import java.io.*;
+import java.util.*;
+
 
 public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
@@ -54,7 +57,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		statusBar = new StatusBar();
 		contentPane.add(statusBar, BorderLayout.SOUTH);
        try {
-            Theme theme = Theme.load(getClass().getResourceAsStream("/lib/eclipse.xml"));
+            Theme theme = Theme.load(getClass().getResourceAsStream("/lib/dark.xml"));
             theme.apply(textArea);
             } 
             catch (Exception ioe) { // Never happens
@@ -106,10 +109,38 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
         JMenuBar mb = new JMenuBar();
 		JMenu menu; 
 
+		JMenuItem openfile=new JMenuItem("Open File");
+		openfile.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+            JFileChooser open = new JFileChooser(); // open up a file chooser (a dialog for the user to  browse files to open)
+            int option = open.showOpenDialog(openfile); // get the option that the user selected (approve or cancel)
+
+            /*
+             * NOTE: because we are OPENing a file, we call showOpenDialog~ if
+             * the user clicked OK, we have "APPROVE_OPTION" so we want to open
+             * the file
+             */
+            if (option == JFileChooser.APPROVE_OPTION) {
+                // FEdit.clear(textArea); // clear the TextArea before applying the file contents
+                try {
+                    File openFile = open.getSelectedFile();
+                    setTitle("N45Editor"+" | "+openFile.getName());
+                    Scanner scan = new Scanner(new FileReader(openFile.getPath()));
+                    while (scan.hasNext()) {
+						textArea.setText(textArea.getText()+"\n"+scan.nextLine());
+                    }
+                } catch (Exception ex) { // catch any exceptions, and...
+                    // ...write to the debug console
+                    System.err.println(ex.getMessage());
+                }
+            }
+    	}
+		});
         menu = new JMenu("  File  ");
-        menu.add(new JMenuItem("New File"));
-		menu.add(new JMenuItem("New Window"));
-        menu.add(new JMenuItem("Open File"));
+
+		menu.add(new JMenuItem("New File"));
+        menu.add(new JMenuItem("New Window"));
+		menu.add(openfile);
         menu.add(new JMenuItem("Open Folder"));
         menu.add(new JMenuItem("Save"));
         menu.add(new JMenuItem("Save as"));
@@ -171,6 +202,10 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		return textArea.getSelectedText();
 	}
 
+	//  public void actionPerformed(ActionEvent e) {
+        // If the source of the event was our "close" option
+
+    // }
 
 	/**
 	 * Creates our Find and Replace dialogs.

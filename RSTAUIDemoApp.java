@@ -211,7 +211,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		nw.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try{
-			Process process = Runtime.getRuntime().exec("java -cp \".;lib/*\" RSTAUIDemoApp");
+			Process process = Runtime.getRuntime().exec("java -cp \".;lib/jars/*\" RSTAUIDemoApp");
 			}
 			catch(Exception e){
 				e.printStackTrace();

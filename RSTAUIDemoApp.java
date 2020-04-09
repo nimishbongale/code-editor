@@ -56,7 +56,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		statusBar = new StatusBar();
 		contentPane.add(statusBar, BorderLayout.SOUTH);
        try {
-            Theme theme = Theme.load(getClass().getResourceAsStream("/lib/dark.xml"));
+            Theme theme = Theme.load(getClass().getResourceAsStream("/lib/styles/dark.xml"));
             theme.apply(textArea);
             } 
             catch (Exception ioe) { // Never happens

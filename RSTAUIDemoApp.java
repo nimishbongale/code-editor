@@ -23,7 +23,6 @@ import java.util.*;
 
 
 public final class RSTAUIDemoApp extends JFrame implements SearchListener {
-
 	private CollapsibleSectionPanel csp;
 	private RSyntaxTextArea textArea;
 	private FindDialog findDialog;
@@ -31,12 +30,12 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 	private FindToolBar findToolBar;
 	private ReplaceToolBar replaceToolBar;
 	private StatusBar statusBar;
+	private String filename;
+	private String filepath;
 
 
 	private RSTAUIDemoApp() {
-
 		initSearchDialogs();
-
 		JPanel contentPane = new JPanel(new BorderLayout());
 		setContentPane(contentPane);
 		csp = new CollapsibleSectionPanel();
@@ -64,9 +63,9 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
                 ioe.printStackTrace();
             }
         
-		CompletionProvider provider = createCompletionProvider();
-        AutoCompletion ac = new AutoCompletion(provider);
-        ac.install(textArea);
+	  CompletionProvider provider = createCompletionProvider();
+      AutoCompletion ac = new AutoCompletion(provider);
+      ac.install(textArea);
 
       setContentPane(contentPane);
       setTitle("N45Editor");
@@ -93,7 +92,6 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
             "System.err.println(", "System.err.println("));
 
       return provider;
-
    }
 
 
@@ -104,7 +102,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 	}
 
 	private void saveFile(JMenuItem savefile){
-		 JFileChooser fileChoose = new JFileChooser();
+		JFileChooser fileChoose = new JFileChooser();
         int option = fileChoose.showSaveDialog(savefile);
 
         /*
@@ -114,9 +112,10 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
         if (option == JFileChooser.APPROVE_OPTION) {
             try {
                 File openFile = fileChoose.getSelectedFile();
-                setTitle("N45Editor"+" | "+openFile.getName());
-
-                BufferedWriter out = new BufferedWriter(new FileWriter(openFile.getPath()));
+				filename=openFile.getName();
+                setTitle("N45Editor"+" | "+filename);
+				filepath=openFile.getPath();
+                BufferedWriter out = new BufferedWriter(new FileWriter(filepath));
                 out.write(textArea.getText());
                 out.close();
                 // edit = false;
@@ -148,8 +147,10 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
                 // FEdit.clear(textArea); // clear the TextArea before applying the file contents
                 try {
                     File openFile = open.getSelectedFile();
-                    setTitle("N45Editor"+" | "+openFile.getName());
-                    Scanner scan = new Scanner(new FileReader(openFile.getPath()));
+					filename=openFile.getName();
+					setTitle("N45Editor"+" | "+filename);
+					filepath=openFile.getPath();
+                    Scanner scan = new Scanner(new FileReader(filepath));
                     while (scan.hasNext()) {
 						textArea.setText(textArea.getText()+"\n"+scan.nextLine());
                     }
@@ -164,40 +165,70 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		JMenuItem newfile=new JMenuItem("New File");
 		newfile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
-             Object[] options = {"Save", "No Save", "Return"};
+             Object[] options = {"Save", "Return"};
                 int n = JOptionPane.showOptionDialog(newfile, "Do you want to save the file at first ?", "Question",
-                        JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
+                        JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
                 if (n == 0) {// save
                     saveFile(newfile);
                     //edit = false;
                 } else if (n == 1) {
-                    //edit = false;
                     textArea.setText(" ");
                 }
-             else {
-                textArea.setText(" ");
-            }
     	}
 		});
 
 
 
-		JMenuItem savefile=new JMenuItem("Save File");
+		JMenuItem savefile=new JMenuItem("Save As");
 		savefile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			saveFile(savefile);
 		}
 		});
 
+		JMenuItem sfile=new JMenuItem("Save");
+		sfile.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			  try {
+                    FileWriter myWriter = new FileWriter(filepath);
+      				myWriter.write(textArea.getText());
+      				myWriter.close();
+                } catch (Exception ex) { // catch any exceptions, and...
+                    // ...write to the debug console
+                    System.err.println(ex.getMessage());
+                }
+		}
+		});
+
+		JMenuItem xexit=new JMenuItem("Exit");
+		xexit.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			 System.exit(0);
+		}
+		});
+
+		JMenuItem nw=new JMenuItem("New Window");
+		nw.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			try{
+			Process process = Runtime.getRuntime().exec("java -cp \".;lib/*\" RSTAUIDemoApp");
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		});
+
+
         menu = new JMenu("  File  ");
 
 		menu.add(newfile);
-        menu.add(new JMenuItem("New Window"));
+        menu.add(nw);
 		menu.add(openfile);
         menu.add(new JMenuItem("Open Folder"));
+		menu.add(sfile);
         menu.add(savefile);
-        menu.add(new JMenuItem("Save as"));
-        menu.add(new JMenuItem("Exit"));
+        menu.add(xexit);
 		mb.add(menu);
 
         menu = new JMenu("  Edit  ");
@@ -335,9 +366,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			text = "Text not found";
 		}
 		statusBar.setLabel(text);
-
 	}
-
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
@@ -349,7 +378,6 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			new RSTAUIDemoApp().setVisible(true);
 		});
 	}
-
 
     /**
      * Opens the "Go to Line" dialog.
@@ -386,7 +414,6 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
 	}
 
-
     /**
      * Changes the Look and Feel.
      */
@@ -417,7 +444,6 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		}
 	}
 
-
     /**
      * Shows the Find dialog.
      */
@@ -436,10 +462,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			}
 			findDialog.setVisible(true);
 		}
-
 	}
-
-
     /**
      * Shows the Replace dialog.
      */
@@ -458,17 +481,12 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			}
 			replaceDialog.setVisible(true);
 		}
-
 	}
-
-
     /**
      * The status bar for this application.
      */
 	private static class StatusBar extends JPanel {
-
 		private JLabel label;
-
 		StatusBar() {
 			label = new JLabel("Ready");
 			setLayout(new BorderLayout());

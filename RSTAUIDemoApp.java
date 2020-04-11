@@ -27,6 +27,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
 
 import java.nio.file.*;
+import java.awt.Robot;
 
 
 public final class RSTAUIDemoApp extends JFrame implements SearchListener {
@@ -240,8 +241,40 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		mb.add(menu);
 
         menu = new JMenu("  Edit  ");
-        menu.add(new JMenuItem("Undo"));
-		menu.add(new JMenuItem("Redo"));
+		JMenuItem undo=new JMenuItem("Undo");
+		undo.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			try {	
+ 	      	Robot robot=new Robot();
+    		robot.keyPress(KeyEvent.VK_CONTROL);
+    		robot.keyPress(KeyEvent.VK_Z);
+			robot.keyRelease(KeyEvent.VK_Z);
+    		robot.keyRelease(KeyEvent.VK_CONTROL);
+} catch (Exception e) {
+        e.printStackTrace();
+}
+		}
+		});
+
+        menu.add(undo);
+
+		JMenuItem redo=new JMenuItem("Redo");
+		redo.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			try {	
+      		 Robot robot=new Robot();
+
+    robot.keyPress(KeyEvent.VK_CONTROL);
+    		robot.keyPress(KeyEvent.VK_Y);
+			robot.keyRelease(KeyEvent.VK_Y);
+    		robot.keyRelease(KeyEvent.VK_CONTROL);
+		} catch (Exception e) {
+        e.printStackTrace();
+}
+		}
+		});
+		menu.add(redo);
+		
         menu.add(new JMenuItem("Cut"));
         menu.add(new JMenuItem("Copy"));
         menu.add(new JMenuItem("Paste"));

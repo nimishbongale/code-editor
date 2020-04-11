@@ -16,6 +16,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintStream;
+import javax.swing.*;
+import java.awt.*;
  
 import javax.swing.text.BadLocationException;
 
@@ -46,7 +48,8 @@ class Terminal{
     private JScrollPane scrollPane = new JScrollPane();
     private CommandProcessor processor = CommandProcessor.getInstance();
     private final String LINE_SEPARATOR = System.lineSeparator();
-    private Font font = new Font("SansSerif", Font.BOLD, 15);
+    private Font font = new Font("Consolas", Font.BOLD, 12);
+    
     private PrintStream standardOut;
 
     private Terminal() {
@@ -59,6 +62,8 @@ class Terminal{
         scrollPane.setViewportView(txtArea);
         txtArea.addKeyListener(new KeyListener());
         txtArea.setFont(font);
+        txtArea.setForeground(Color.WHITE);
+        txtArea.setBackground(Color.BLACK);
         disableArrowKeys(txtArea.getInputMap());
     }
 

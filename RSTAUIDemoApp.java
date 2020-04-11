@@ -13,7 +13,6 @@ import org.fife.rsta.ui.search.ReplaceDialog;
 import org.fife.rsta.ui.search.ReplaceToolBar;
 import org.fife.rsta.ui.search.SearchEvent;
 import org.fife.rsta.ui.search.SearchListener;
-import org.fife.rsta.ui.search.FindToolBar;
 import org.fife.ui.autocomplete.*;
 import org.fife.ui.rtextarea.*;
 import org.fife.ui.rsyntaxtextarea.*;
@@ -35,20 +34,17 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 	private RSyntaxTextArea textArea;
 	private FindDialog findDialog;
 	private ReplaceDialog replaceDialog;
-	private FindToolBar findToolBar;
-	private ReplaceToolBar replaceToolBar;
 	private StatusBar statusBar;
 	private String filename;
 	private String filepath;
 
-
-	private RSTAUIDemoApp() {
+	private RSTAUIDemoApp(String fop) {
 		initSearchDialogs();
 		JPanel contentPane = new JPanel(new BorderLayout());
 		setContentPane(contentPane);
 		csp = new CollapsibleSectionPanel();
 		JPanel jp=new JPanel();
-		jp.add(new FileTree(new File(".")));
+		jp.add(new FileTree(new File(fop)));
 		jp.add(csp);
 		setJMenuBar(createMenuBar());
 		contentPane.add(jp);
@@ -68,7 +64,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		// contentPane.add(jd);
 		contentPane.add(statusBar, BorderLayout.SOUTH);
        try {
-            Theme theme = Theme.load(getClass().getResourceAsStream("/lib/styles/dark.xml"));
+            Theme theme = Theme.load(getClass().getResourceAsStream("/lib/styles/default.xml"));
             theme.apply(textArea);
             } 
             catch (Exception ioe) { // Never happens
@@ -185,6 +181,10 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
                 } else if (n == 1) {
                     textArea.setText("");
                 }
+				// DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
+				// DefaultMutableTreeNode root = (DefaultMutableTreeNode)model.getRoot();
+				// root.add(new DefaultMutableTreeNode("another_child"));
+				// model.reload(root);
     	}
 		});
 
@@ -228,13 +228,27 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		}
 		});
 
+		JMenuItem openfolder=new JMenuItem("Open Folder");
+		openfolder.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int option = fileChooser.showOpenDialog(openfolder);
+            if(option == JFileChooser.APPROVE_OPTION){
+               File file = fileChooser.getSelectedFile();
+			   String ar[]={file.getPath()};
+			   main(ar);
+            }
+		}
+		});
+
 
         menu = new JMenu("  File  ");
 
 		menu.add(newfile);
         menu.add(nw);
 		menu.add(openfile);
-        menu.add(new JMenuItem("Open Folder"));
+        menu.add(openfolder);
 		menu.add(sfile);
         menu.add(savefile);
         menu.add(xexit);
@@ -274,36 +288,105 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		}
 		});
 		menu.add(redo);
-		
-        menu.add(new JMenuItem("Cut"));
-        menu.add(new JMenuItem("Copy"));
-        menu.add(new JMenuItem("Paste"));
+
+		JMenuItem cut=new JMenuItem("Cut");
+		cut.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			try {	
+ 	      	Robot robot=new Robot();
+    		robot.keyPress(KeyEvent.VK_CONTROL);
+    		robot.keyPress(KeyEvent.VK_X);
+			robot.keyRelease(KeyEvent.VK_X);
+    		robot.keyRelease(KeyEvent.VK_CONTROL);
+} catch (Exception e) {
+        e.printStackTrace();
+}
+		}
+		});
+
+        menu.add(cut);
+
+		JMenuItem copy=new JMenuItem("Copy");
+		copy.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			try {	
+ 	      	Robot robot=new Robot();
+    		robot.keyPress(KeyEvent.VK_CONTROL);
+    		robot.keyPress(KeyEvent.VK_C);
+			robot.keyRelease(KeyEvent.VK_C);
+    		robot.keyRelease(KeyEvent.VK_CONTROL);
+} catch (Exception e) {
+        e.printStackTrace();
+}
+		}
+		});
+
+        menu.add(copy);
+
+		JMenuItem paste=new JMenuItem("Paste");
+		paste.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			try {	
+ 	      	Robot robot=new Robot();
+    		robot.keyPress(KeyEvent.VK_CONTROL);
+    		robot.keyPress(KeyEvent.VK_V);
+			robot.keyRelease(KeyEvent.VK_V);
+    		robot.keyRelease(KeyEvent.VK_CONTROL);
+} catch (Exception e) {
+        e.printStackTrace();
+}
+		}
+		});
+
+        menu.add(paste);
 		mb.add(menu);
 
         menu = new JMenu("  View  ");
+		JMenu submenu1=new JMenu("Theme");
 		ButtonGroup bg = new ButtonGroup();
 		LookAndFeelInfo[] infos = UIManager.getInstalledLookAndFeels();
 		for (LookAndFeelInfo info : infos) {
-			addItem(new LookAndFeelAction(info), bg, menu);
+			addItem(new LookAndFeelAction(info), bg, submenu1);
 		}
+		menu.add(submenu1);
+		JMenu submenu2=new JMenu("Style");
+		ButtonGroup b = new ButtonGroup();
+		String[] info = {"dark","darkii","default-alt","default","eclipse","idea","idle","jce","vs"};
+		for (String inf : info) {
+			JRadioButtonMenuItem rbMenuItem= new JRadioButtonMenuItem(inf);
+			b.add(rbMenuItem);
+			rbMenuItem.setMnemonic(KeyEvent.VK_R);
+			rbMenuItem.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			try {	
+				Theme theme = Theme.load(getClass().getResourceAsStream("/lib/styles/"+inf+".xml"));
+            	theme.apply(textArea);
+} catch (Exception e) {
+        e.printStackTrace();
+}
+		}
+		});
+		submenu2.add(rbMenuItem);
+		}
+		menu.add(submenu2);
 		mb.add(menu);
 
         menu= new JMenu("  Search  ");
 		menu.add(new JMenuItem(new ShowFindDialogAction()));
 		menu.add(new JMenuItem(new ShowReplaceDialogAction()));
 		menu.add(new JMenuItem(new GoToLineAction()));
-		menu.addSeparator();
+		// menu.addSeparator();
 
-		int ctrl = getToolkit().getMenuShortcutKeyMask();
-		int shift = InputEvent.SHIFT_MASK;
-		KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_F, ctrl|shift);
-		Action a = csp.addBottomComponent(ks, findToolBar);
-		a.putValue(Action.NAME, "Show Find Search Bar");
-		menu.add(new JMenuItem(a));
-		ks = KeyStroke.getKeyStroke(KeyEvent.VK_H, ctrl|shift);
-		a = csp.addBottomComponent(ks, replaceToolBar);
-		a.putValue(Action.NAME, "Show Replace Search Bar");
-		menu.add(new JMenuItem(a));
+		// int ctrl = getToolkit().getMenuShortcutKeyMask();
+		// int shift = InputEvent.SHIFT_MASK;
+		// KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_F, ctrl|shift);
+		// Action a = csp.addBottomComponent(ks, findToolBar);
+		// a.putValue(Action.NAME, "Show Find Search Bar");
+		// menu.add(new JMenuItem(a));
+		// ks = KeyStroke.getKeyStroke(KeyEvent.VK_H, ctrl|shift);
+		// a = csp.addBottomComponent(ks, replaceToolBar);
+		// a.putValue(Action.NAME, "Show Replace Search Bar");
+		// menu.add(new JMenuItem(a));
 		mb.add(menu);
 
         menu = new JMenu("  Run  ");
@@ -319,10 +402,41 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		}
 		});
         menu.add(t);
-		menu.add(new JMenuItem("Default run current file"));
+		//JMenuItem rdf=new JMenuItem("Default run current file");
+		// rdf.addActionListener(new ActionListener() {
+    	// public void actionPerformed(ActionEvent ev) {
+		// 	try{
+		// 	if(filename==null){
+		// 		JOptionPane.showMessageDialog(new JFrame(), "Can't run a file without saving","Error",JOptionPane.WARNING_MESSAGE);
+		// 	}
+		// 	else{
+		// 	System.out.println(filepath+"\n"+filename);
+		// 	Process process = Runtime.getRuntime().exec("java TestTerminal");
+		// 	String ext=filename.substring(filename.lastIndexOf(".") + 1);
+		// 	System.out.println(ext);
+		// 	if(ext.equals("java")){
+		// 	Process process1 = Runtime.getRuntime().exec("javac "+filepath+" java "+filename.substring(0,filename.lastIndexOf(".")));
+		// 	}
+		// 	else if(ext.equals("py")){
+		// 	Process process2 = Runtime.getRuntime().exec("python3 "+filepath);
+		// 	}
+		// 	else if(ext.equals("c")){
+		// 	Process process3 = Runtime.getRuntime().exec("gcc "+filepath);
+		// 	}
+		// 	else
+		// 	System.out.println("Unable to run the file");
+		// 	}
+		// 	}
+		// 	catch(Exception e){
+		// 		e.printStackTrace();
+		// 	}
+		// }
+		// });
+		//menu.add(rdf);
 		mb.add(menu);
 
         menu = new JMenu("  Help  ");
+		menu.add(new JMenuItem("Git"));
         menu.add(new JMenuItem("Documentation"));
 		menu.add(new JMenuItem("License"));
         menu.addSeparator();
@@ -359,10 +473,10 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		replaceDialog.setSearchContext(context);
 
 		// Create tool bars and tie their search contexts together also.
-		findToolBar = new FindToolBar(this);
-		findToolBar.setSearchContext(context);
-		replaceToolBar = new ReplaceToolBar(this);
-		replaceToolBar.setSearchContext(context);
+		// findToolBar = new FindToolBar(this);
+		// findToolBar.setSearchContext(context);
+		// replaceToolBar = new ReplaceToolBar(this);
+		// replaceToolBar.setSearchContext(context);
 
 	}
 
@@ -420,14 +534,14 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		statusBar.setLabel(text);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String args[]) {
 		SwingUtilities.invokeLater(() -> {
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			new RSTAUIDemoApp().setVisible(true);
+			new RSTAUIDemoApp(args[0]).setVisible(true);
 		});
 	}
 

@@ -9,14 +9,34 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import java.io.*;
+import java.io.PrintStream;
 import java.util.*;
 
-//TODO: Keep a global StringBuilder to decrease memory footprint
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.PrintStream;
+ 
+import javax.swing.text.BadLocationException;
 
 public class TestTerminal {
     public static void main(String[] args) {
         Terminal term = Terminal.getInstance();
-        term.open(0, 0, 700, 700);
+        term.open(0, 410, 1355, 300);
+    }
+}
+
+class CustomOutputStream extends OutputStream {
+    private JTextArea textArea;
+
+    public CustomOutputStream(JTextArea textArea) {
+        this.textArea = textArea;
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+        textArea.append(String.valueOf((char)b));
+        textArea.setCaretPosition(textArea.getDocument().getLength());
     }
 }
 
@@ -27,8 +47,13 @@ class Terminal{
     private CommandProcessor processor = CommandProcessor.getInstance();
     private final String LINE_SEPARATOR = System.lineSeparator();
     private Font font = new Font("SansSerif", Font.BOLD, 15);
+    private PrintStream standardOut;
 
     private Terminal() {
+        PrintStream printStream = new PrintStream(new CustomOutputStream(txtArea));
+        standardOut = System.out;
+        System.setOut(printStream);
+        System.setErr(printStream);
         frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frm.getContentPane().add(scrollPane);
         scrollPane.setViewportView(txtArea);
@@ -176,8 +201,8 @@ class CommandProcessor {
     }
 
     public void processCmd(String command) {
-        System.out.println("User command: " + command);
-ProcessBuilder processBuilder = new ProcessBuilder();
+        // System.out.println("User command: " + command);
+        ProcessBuilder processBuilder = new ProcessBuilder();
 
 	// -- Linux --
 
@@ -190,6 +215,7 @@ ProcessBuilder processBuilder = new ProcessBuilder();
 	// -- Windows --
 
 	//Run a command
+    if(command.equals("clear")) Terminal.txtArea.setText("");
 	processBuilder.command("cmd.exe", "/c", command);
 
 	// Run a bat file
@@ -200,22 +226,27 @@ ProcessBuilder processBuilder = new ProcessBuilder();
 		Process process = processBuilder.start();
 
 		StringBuilder output = new StringBuilder();
-
-		BufferedReader reader = new BufferedReader(
+        int exitVal = process.waitFor();
+		
+		
+		if (exitVal == 0) {
+			BufferedReader reader = new BufferedReader(
 				new InputStreamReader(process.getInputStream()));
+
+		    String line;
+		    while ((line = reader.readLine()) != null) {
+			output.append(line + "\n");
+		}
+			System.out.print("\n"+output);
+		} else {
+            BufferedReader reader = new BufferedReader(
+				new InputStreamReader(process.getErrorStream()));
 
 		String line;
 		while ((line = reader.readLine()) != null) {
 			output.append(line + "\n");
 		}
-
-		int exitVal = process.waitFor();
-		if (exitVal == 0) {
-			System.out.println("Success!");
-			System.out.println(output);
-            Terminal.txtArea.setText(Terminal.txtArea.getText() + "\n" + output);
-		} else {
-			System.out.println("Error, can't run"+command);
+			System.out.print("\n"+output);
 		}
 
 	} catch (IOException e) {

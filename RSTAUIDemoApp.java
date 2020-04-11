@@ -61,8 +61,10 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
 		ErrorStrip errorStrip = new ErrorStrip(textArea);
 		contentPane.add(errorStrip, BorderLayout.LINE_END);
-
+		// JPanel jd = new JPanel();
+		// jd.add(new TestTerminal());
 		statusBar = new StatusBar();
+		// contentPane.add(jd);
 		contentPane.add(statusBar, BorderLayout.SOUTH);
        try {
             Theme theme = Theme.load(getClass().getResourceAsStream("/lib/styles/dark.xml"));
@@ -177,16 +179,13 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
              Object[] options = {"Save", "Return"};
                 int n = JOptionPane.showOptionDialog(newfile, "Do you want to save the file at first ?", "Question",
                         JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
-                if (n == 0) {// save
+                if (n == 0) {
                     saveFile(newfile);
-                    //edit = false;
                 } else if (n == 1) {
-                    textArea.setText(" ");
+                    textArea.setText("");
                 }
     	}
 		});
-
-
 
 		JMenuItem savefile=new JMenuItem("Save As");
 		savefile.addActionListener(new ActionListener() {
@@ -275,7 +274,18 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		mb.add(menu);
 
         menu = new JMenu("  Run  ");
-        menu.add(new JMenuItem("New Terminal"));
+		JMenuItem t=new JMenuItem("New Terminal");
+		t.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+			try{
+			Process process = Runtime.getRuntime().exec("java TestTerminal");
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		});
+        menu.add(t);
 		menu.add(new JMenuItem("Default run current file"));
 		mb.add(menu);
 
@@ -407,7 +417,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		String pathy=ans[ans.length-2].toString()+"\\"+(ans[ans.length-1].toString().substring(0,ans[ans.length-1].length()-1)).trim();
 		 try {
 					setTitle("N45Editor"+" | "+pathy);
-					textArea.setText(" ");
+					textArea.setText("");
                     Scanner scan = new Scanner(new FileReader(pathy.substring(1,pathy.length())));
                     while (scan.hasNext()) {
 						textArea.setText(textArea.getText()+"\n"+scan.nextLine());

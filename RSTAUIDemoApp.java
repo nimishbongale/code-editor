@@ -27,34 +27,94 @@ import javax.swing.tree.*;
 
 import java.nio.file.*;
 import java.awt.Robot;
+import javax.swing.plaf.metal.*;
+import javax.swing.plaf.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.awt.*;
+import java.net.*;
+import javax.swing.text.View;
+
+class CustomTabbedPaneUI extends MetalTabbedPaneUI
+{
+   Rectangle xRect;
+   protected void installListeners() {
+      super.installListeners();
+      tabPane.addMouseListener(new MyMouseHandler());
+   }
+  
+   protected void paintTab(Graphics g, int tabPlacement,
+                           Rectangle[] rects, int tabIndex,
+                           Rectangle iconRect, Rectangle textRect) {
+      super.paintTab(g, tabPlacement, rects, tabIndex, iconRect, textRect);
+      Font f = g.getFont();
+      g.setFont(new Font("Consolas", Font.BOLD, 15));
+      FontMetrics fm = g.getFontMetrics(g.getFont());
+      int charWidth = fm.charWidth('x');
+      int maxAscent = fm.getMaxAscent();
+      g.drawString("x", textRect.x + textRect.width - 3, textRect.y + textRect.height - 3);
+      g.drawRect(textRect.x+textRect.width-5,
+                 textRect.y+textRect.height-maxAscent, charWidth+2, maxAscent-1);
+      xRect = new Rectangle(textRect.x+textRect.width-5,
+                 textRect.y+textRect.height-maxAscent, charWidth+2, maxAscent-1);
+      g.setFont(f);
+    }
+  
+    class MyMouseHandler extends MouseAdapter {
+        public void mousePressed(MouseEvent e) {
+			int tabIndex = tabForCoordinate(tabPane, e.getX(), e.getY());
+			JTabbedPane tabPane = (JTabbedPane)e.getSource();
+			String ans=tabPane.getTitleAt(tabIndex);
+			if(!ans.equals("Empty File")){
+				RSTAUIDemoApp.filepath=ans;
+				System.out.println(ans);
+			}
+            if (xRect.contains(e.getPoint())) {
+			   if(tabIndex>0)
+               tabPane.remove(tabIndex);
+            }
+        }
+    }
+}
 
 
 public final class RSTAUIDemoApp extends JFrame implements SearchListener {
-	private CollapsibleSectionPanel csp;
+	private JPanel csp;
 	private RSyntaxTextArea textArea;
+	private JTabbedPane tabbedPane; 
 	private FindDialog findDialog;
 	private ReplaceDialog replaceDialog;
 	private StatusBar statusBar;
 	private String filename;
-	private String filepath;
+	public static String filepath;
+	int ntabs = 0;
 
-	private RSTAUIDemoApp(String fop) {
-		initSearchDialogs();
-		JPanel contentPane = new JPanel(new BorderLayout());
-		setContentPane(contentPane);
-		csp = new CollapsibleSectionPanel();
-		JPanel jp=new JPanel();
-		jp.add(new FileTree(new File(fop)));
-		jp.add(csp);
-		setJMenuBar(createMenuBar());
-		contentPane.add(jp);
-
+	public RSyntaxTextArea inittextarea(){
 		textArea = new RSyntaxTextArea(40, 150);
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 		textArea.setCodeFoldingEnabled(true);
 		textArea.setMarkOccurrences(true);
+		return textArea;
+	}
+	
+	private RSTAUIDemoApp(String fop) {
+		initSearchDialogs();
+		tabbedPane= new JTabbedPane();
+		tabbedPane.setUI(new CustomTabbedPaneUI());
 		RTextScrollPane sp = new RTextScrollPane(textArea);
-		csp.add(sp);
+		tabbedPane.addTab("  Empty File    ",null,new RTextScrollPane(inittextarea()),
+                  "File1");
+		JPanel contentPane = new JPanel(new BorderLayout());
+		setContentPane(contentPane);
+		csp = new JPanel();
+		JPanel jp=new JPanel();
+		csp.setLayout(new BoxLayout(csp, BoxLayout.Y_AXIS));
+		setTitle("N45 Editor | "+fop);
+		jp.add(new FileTree(new File(fop)));
+		jp.add(csp);
+		csp.add(tabbedPane);
+		setJMenuBar(createMenuBar());
+		contentPane.add(jp);
 
 		ErrorStrip errorStrip = new ErrorStrip(textArea);
 		contentPane.add(errorStrip, BorderLayout.LINE_END);
@@ -81,6 +141,15 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
       pack();
       setLocationRelativeTo(null);
 	}
+
+	protected JComponent makeTextPanel(String text) {
+    JPanel panel = new JPanel(false);
+    JLabel filler = new JLabel(text);
+    filler.setHorizontalAlignment(JLabel.CENTER);
+    panel.setLayout(new GridLayout(1, 1));
+    panel.add(filler);
+    return panel;
+}
 
      private CompletionProvider createCompletionProvider() {
       DefaultCompletionProvider provider = new DefaultCompletionProvider();
@@ -121,8 +190,8 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
             try {
                 File openFile = fileChoose.getSelectedFile();
 				filename=openFile.getName();
-                setTitle("N45Editor"+" | "+filename);
 				filepath=openFile.getPath();
+				tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(),"    "+filepath+"      ");
                 BufferedWriter out = new BufferedWriter(new FileWriter(filepath));
                 out.write(textArea.getText());
                 out.close();
@@ -145,19 +214,14 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
     	public void actionPerformed(ActionEvent ev) {
             JFileChooser open = new JFileChooser(); // open up a file chooser (a dialog for the user to  browse files to open)
             int option = open.showOpenDialog(openfile); // get the option that the user selected (approve or cancel)
-
-            /*
-             * NOTE: because we are OPENing a file, we call showOpenDialog~ if
-             * the user clicked OK, we have "APPROVE_OPTION" so we want to open
-             * the file
-             */
             if (option == JFileChooser.APPROVE_OPTION) {
                 // FEdit.clear(textArea); // clear the TextArea before applying the file contents
                 try {
                     File openFile = open.getSelectedFile();
 					filename=openFile.getName();
-					setTitle("N45Editor"+" | "+filename);
 					filepath=openFile.getPath();
+					textArea=inittextarea();
+					tabbedPane.addTab("   "+filepath+"      ", null,new RTextScrollPane(textArea),"Does nothing at all");
                     Scanner scan = new Scanner(new FileReader(filepath));
                     while (scan.hasNext()) {
 						textArea.setText(textArea.getText()+"\n"+scan.nextLine());
@@ -563,12 +627,15 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		String ans[]=selectedPath.split(",", 0);
 		String pathy=ans[ans.length-2].toString()+"\\"+(ans[ans.length-1].toString().substring(0,ans[ans.length-1].length()-1)).trim();
 		 try {
-					setTitle("N45Editor"+" | "+pathy);
-					textArea.setText("");
-                    Scanner scan = new Scanner(new FileReader(pathy.substring(1,pathy.length())));
+			 		textArea=inittextarea();
+					 String pathe=pathy.substring(1,pathy.length());
+					Scanner scan = new Scanner(new FileReader(pathe));
                     while (scan.hasNext()) {
 						textArea.setText(textArea.getText()+"\n"+scan.nextLine());
                     }
+			 		tabbedPane.addTab("    "+pathe+"      ",null,new RTextScrollPane(textArea),
+                  "File");
+                   
                 } catch (Exception ex) { // catch any exceptions, and...
                     // ...write to the debug console
                     System.err.println(ex.getMessage());

@@ -7,8 +7,7 @@ import java.net.*;
   
 public class Main2 extends JFrame implements ActionListener {
    JTabbedPane tabbedPane;
-   int ntabs = 0;
-  
+   
    public Main2() {
       getContentPane().setLayout(new BorderLayout());
       tabbedPane = new JTabbedPane();

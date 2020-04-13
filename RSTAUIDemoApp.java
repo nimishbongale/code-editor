@@ -10,7 +10,6 @@ import org.fife.rsta.ui.GoToDialog;
 import org.fife.rsta.ui.SizeGripIcon;
 import org.fife.rsta.ui.search.FindDialog;
 import org.fife.rsta.ui.search.ReplaceDialog;
-import org.fife.rsta.ui.search.ReplaceToolBar;
 import org.fife.rsta.ui.search.SearchEvent;
 import org.fife.rsta.ui.search.SearchListener;
 import org.fife.ui.autocomplete.*;
@@ -30,8 +29,6 @@ import java.awt.Robot;
 import javax.swing.plaf.metal.*;
 import javax.swing.plaf.*;
 import java.awt.event.*;
-import javax.swing.*;
-import java.awt.*;
 import java.net.*;
 import javax.swing.text.View;
 
@@ -65,9 +62,9 @@ class CustomTabbedPaneUI extends MetalTabbedPaneUI
 			int tabIndex = tabForCoordinate(tabPane, e.getX(), e.getY());
 			JTabbedPane tabPane = (JTabbedPane)e.getSource();
 			String ans=tabPane.getTitleAt(tabIndex);
-			if(!ans.equals("Empty File")){
-				RSTAUIDemoApp.filepath=ans;
-				System.out.println(ans);
+			System.out.println(tabIndex);
+			if(!ans.equals("blank")){
+				RSTAUIDemoApp.filepath=ans.trim();
 			}
             if (xRect.contains(e.getPoint())) {
 			   if(tabIndex>0)
@@ -87,10 +84,9 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 	private StatusBar statusBar;
 	private String filename;
 	public static String filepath;
-	int ntabs = 0;
 
 	public RSyntaxTextArea inittextarea(){
-		textArea = new RSyntaxTextArea(40, 150);
+		textArea = new RSyntaxTextArea(38, 150);
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 		textArea.setCodeFoldingEnabled(true);
 		textArea.setMarkOccurrences(true);
@@ -99,10 +95,11 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 	
 	private RSTAUIDemoApp(String fop) {
 		initSearchDialogs();
+		UIManager.put("TabbedPane.selected", Color.white);
 		tabbedPane= new JTabbedPane();
 		tabbedPane.setUI(new CustomTabbedPaneUI());
 		RTextScrollPane sp = new RTextScrollPane(textArea);
-		tabbedPane.addTab("  Empty File    ",null,new RTextScrollPane(inittextarea()),
+		tabbedPane.addTab("  blank    ",null,new RTextScrollPane(inittextarea()),
                   "File1");
 		JPanel contentPane = new JPanel(new BorderLayout());
 		setContentPane(contentPane);
@@ -118,8 +115,6 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
 		ErrorStrip errorStrip = new ErrorStrip(textArea);
 		contentPane.add(errorStrip, BorderLayout.LINE_END);
-		// JPanel jd = new JPanel();
-		// jd.add(new TestTerminal());
 		statusBar = new StatusBar();
 		// contentPane.add(jd);
 		contentPane.add(statusBar, BorderLayout.SOUTH);
@@ -222,7 +217,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 					filepath=openFile.getPath();
 					textArea=inittextarea();
 					tabbedPane.addTab("   "+filepath+"      ", null,new RTextScrollPane(textArea),"Does nothing at all");
-                    Scanner scan = new Scanner(new FileReader(filepath));
+					Scanner scan = new Scanner(new FileReader(filepath));
                     while (scan.hasNext()) {
 						textArea.setText(textArea.getText()+"\n"+scan.nextLine());
                     }
@@ -230,6 +225,9 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
                     // ...write to the debug console
                     System.err.println(ex.getMessage());
                 }
+				// int selectedIndex = tabbedPane.getSelectedIndex();
+                // int nextIndex = selectedIndex == tabbedPane.getTabCount()? 0 : selectedIndex+1;
+                // tabbedPane.setSelectedIndex(nextIndex);
             }
     	}
 		});

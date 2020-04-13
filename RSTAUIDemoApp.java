@@ -148,20 +148,25 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
      private CompletionProvider createCompletionProvider() {
       DefaultCompletionProvider provider = new DefaultCompletionProvider();
-      provider.addCompletion(new BasicCompletion(provider, "abstract"));
-      provider.addCompletion(new BasicCompletion(provider, "assert"));
-      provider.addCompletion(new BasicCompletion(provider, "break"));
-      provider.addCompletion(new BasicCompletion(provider, "case"));
-      provider.addCompletion(new BasicCompletion(provider, "transient"));
-      provider.addCompletion(new BasicCompletion(provider, "try"));
-      provider.addCompletion(new BasicCompletion(provider, "void"));
-      provider.addCompletion(new BasicCompletion(provider, "volatile"));
-      provider.addCompletion(new BasicCompletion(provider, "while"));
+	  try{
+	  File fil = new File("keywords.txt");
+	  Scanner scan = new Scanner(new FileReader(fil.getPath()));
+        while (scan.hasNext()) {
+			provider.addCompletion(new BasicCompletion(provider, scan.nextLine()));
+        }
+	  }
+	  catch(Exception e){
+		  e.printStackTrace();
+	  }
 
       provider.addCompletion(new ShorthandCompletion(provider, "sysout",
             "System.out.println(", "System.out.println("));
       provider.addCompletion(new ShorthandCompletion(provider, "syserr",
             "System.err.println(", "System.err.println("));
+		provider.addCompletion(new ShorthandCompletion(provider, "psvm",
+            "public static void main(String args[]){", "public static void main(String args[]){"));
+		provider.addCompletion(new ShorthandCompletion(provider, "p",
+            "print()", "print()"));
 
       return provider;
    }

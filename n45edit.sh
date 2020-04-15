@@ -1,0 +1,1 @@
+alias n45edit='java -cp "hello.jar;lib/jars/*" RSTAUIDemoApp $1'

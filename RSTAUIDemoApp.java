@@ -608,7 +608,10 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			new RSTAUIDemoApp(args[0]).setVisible(true);
+			RSTAUIDemoApp jj = new RSTAUIDemoApp(args[0]);
+			jj.setVisible(true);
+			ImageIcon img = new ImageIcon("lib/logo.png");
+			jj.setIconImage(img.getImage());
 		});
 	}
 

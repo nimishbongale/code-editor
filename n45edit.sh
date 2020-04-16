@@ -1,1 +1,2 @@
-alias n45edit='java -cp "hello.jar;lib/jars/*" RSTAUIDemoApp $1'
+javac TestTerminal.java
+alias n45edit="java -cp '.:lib/jars/*' RSTAUIDemoApp $1"

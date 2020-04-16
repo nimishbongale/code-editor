@@ -1,2 +1,3 @@
 @echo off
-java -cp "hello.jar;lib/jars/*" RSTAUIDemoApp %1
+javac TestTerminal.java
+java -cp ".;lib/jars/*" RSTAUIDemoApp %1

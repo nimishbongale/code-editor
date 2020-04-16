@@ -62,7 +62,6 @@ class CustomTabbedPaneUI extends MetalTabbedPaneUI
 			int tabIndex = tabForCoordinate(tabPane, e.getX(), e.getY());
 			JTabbedPane tabPane = (JTabbedPane)e.getSource();
 			String ans=tabPane.getTitleAt(tabIndex);
-			System.out.println(tabIndex);
 			if(!ans.equals("blank")){
 				RSTAUIDemoApp.filepath=ans.trim();
 			}
@@ -84,6 +83,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 	private StatusBar statusBar;
 	private String filename;
 	public static String filepath;
+	public static String folderpath;
 
 	public RSyntaxTextArea inittextarea(){
 		textArea = new RSyntaxTextArea(38, 150);
@@ -95,6 +95,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 	
 	private RSTAUIDemoApp(String fop) {
 		initSearchDialogs();
+		folderpath=fop;
 		UIManager.put("TabbedPane.selected", Color.white);
 		tabbedPane= new JTabbedPane();
 		tabbedPane.setUI(new CustomTabbedPaneUI());
@@ -210,6 +211,8 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		JMenu menu; 
 
 		JMenuItem openfile=new JMenuItem("Open File");
+        openfile.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
+
 		openfile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
             JFileChooser open = new JFileChooser(); // open up a file chooser (a dialog for the user to  browse files to open)
@@ -230,14 +233,12 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
                     // ...write to the debug console
                     System.err.println(ex.getMessage());
                 }
-				// int selectedIndex = tabbedPane.getSelectedIndex();
-                // int nextIndex = selectedIndex == tabbedPane.getTabCount()? 0 : selectedIndex+1;
-                // tabbedPane.setSelectedIndex(nextIndex);
             }
     	}
 		});
 
 		JMenuItem newfile=new JMenuItem("New File");
+		 newfile.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		newfile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
              Object[] options = {"Save", "Return"};
@@ -248,14 +249,11 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
                 } else if (n == 1) {
                     textArea.setText("");
                 }
-				// DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
-				// DefaultMutableTreeNode root = (DefaultMutableTreeNode)model.getRoot();
-				// root.add(new DefaultMutableTreeNode("another_child"));
-				// model.reload(root);
     	}
 		});
 
 		JMenuItem savefile=new JMenuItem("Save As");
+		 savefile.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		savefile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			saveFile(savefile);
@@ -263,20 +261,21 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		});
 
 		JMenuItem sfile=new JMenuItem("Save");
+		 sfile.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		sfile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			  try {
                     FileWriter myWriter = new FileWriter(filepath);
       				myWriter.write(textArea.getText());
       				myWriter.close();
-                } catch (Exception ex) { // catch any exceptions, and...
-                    // ...write to the debug console
+                } catch (Exception ex) {
                     System.err.println(ex.getMessage());
                 }
 		}
 		});
 
 		JMenuItem xexit=new JMenuItem("Exit");
+		 xexit.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		xexit.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			 System.exit(0);
@@ -284,10 +283,11 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		});
 
 		JMenuItem nw=new JMenuItem("New Window");
+		 nw.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		nw.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try{
-			Process process = Runtime.getRuntime().exec("java -cp \".;lib/jars/*\" RSTAUIDemoApp");
+			Process process = Runtime.getRuntime().exec("java -cp '.;lib/jars/*' RSTAUIDemoApp");
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -296,6 +296,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		});
 
 		JMenuItem openfolder=new JMenuItem("Open Folder");
+		 openfolder.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		openfolder.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			JFileChooser fileChooser = new JFileChooser();
@@ -323,6 +324,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
         menu = new JMenu("  Edit  ");
 		JMenuItem undo=new JMenuItem("Undo");
+		 undo.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		undo.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try {	
@@ -340,6 +342,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
         menu.add(undo);
 
 		JMenuItem redo=new JMenuItem("Redo");
+		 redo.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		redo.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try {	
@@ -357,6 +360,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		menu.add(redo);
 
 		JMenuItem cut=new JMenuItem("Cut");
+		 cut.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		cut.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try {	
@@ -374,6 +378,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
         menu.add(cut);
 
 		JMenuItem copy=new JMenuItem("Copy");
+		 copy.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		copy.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try {	
@@ -391,6 +396,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
         menu.add(copy);
 
 		JMenuItem paste=new JMenuItem("Paste");
+		 paste.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		paste.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try {	
@@ -442,22 +448,11 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		menu.add(new JMenuItem(new ShowFindDialogAction()));
 		menu.add(new JMenuItem(new ShowReplaceDialogAction()));
 		menu.add(new JMenuItem(new GoToLineAction()));
-		// menu.addSeparator();
-
-		// int ctrl = getToolkit().getMenuShortcutKeyMask();
-		// int shift = InputEvent.SHIFT_MASK;
-		// KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_F, ctrl|shift);
-		// Action a = csp.addBottomComponent(ks, findToolBar);
-		// a.putValue(Action.NAME, "Show Find Search Bar");
-		// menu.add(new JMenuItem(a));
-		// ks = KeyStroke.getKeyStroke(KeyEvent.VK_H, ctrl|shift);
-		// a = csp.addBottomComponent(ks, replaceToolBar);
-		// a.putValue(Action.NAME, "Show Replace Search Bar");
-		// menu.add(new JMenuItem(a));
 		mb.add(menu);
 
         menu = new JMenu("  Run  ");
 		JMenuItem t=new JMenuItem("New Terminal");
+		 t.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_T, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		t.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try{
@@ -469,41 +464,9 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		}
 		});
         menu.add(t);
-		//JMenuItem rdf=new JMenuItem("Default run current file");
-		// rdf.addActionListener(new ActionListener() {
-    	// public void actionPerformed(ActionEvent ev) {
-		// 	try{
-		// 	if(filename==null){
-		// 		JOptionPane.showMessageDialog(new JFrame(), "Can't run a file without saving","Error",JOptionPane.WARNING_MESSAGE);
-		// 	}
-		// 	else{
-		// 	System.out.println(filepath+"\n"+filename);
-		// 	Process process = Runtime.getRuntime().exec("java TestTerminal");
-		// 	String ext=filename.substring(filename.lastIndexOf(".") + 1);
-		// 	System.out.println(ext);
-		// 	if(ext.equals("java")){
-		// 	Process process1 = Runtime.getRuntime().exec("javac "+filepath+" java "+filename.substring(0,filename.lastIndexOf(".")));
-		// 	}
-		// 	else if(ext.equals("py")){
-		// 	Process process2 = Runtime.getRuntime().exec("python3 "+filepath);
-		// 	}
-		// 	else if(ext.equals("c")){
-		// 	Process process3 = Runtime.getRuntime().exec("gcc "+filepath);
-		// 	}
-		// 	else
-		// 	System.out.println("Unable to run the file");
-		// 	}
-		// 	}
-		// 	catch(Exception e){
-		// 		e.printStackTrace();
-		// 	}
-		// }
-		// });
-		//menu.add(rdf);
 		mb.add(menu);
 
         menu = new JMenu("  Help  ");
-		menu.add(new JMenuItem("Git"));
         menu.add(new JMenuItem("Documentation"));
 		menu.add(new JMenuItem("License"));
         menu.addSeparator();
@@ -518,15 +481,6 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 	public String getSelectedText() {
 		return textArea.getSelectedText();
 	}
-
-	//  public void actionPerformed(ActionEvent e) {
-        // If the source of the event was our "close" option
-
-    // }
-
-	/**
-	 * Creates our Find and Replace dialogs.
-	 */
 
 	 
 	private void initSearchDialogs() {

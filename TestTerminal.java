@@ -210,9 +210,12 @@ class CommandProcessor {
         ProcessBuilder processBuilder = new ProcessBuilder();
 
 	// -- Linux --
-
-	// Run a shell command
-	// processBuilder.command("bash", "-c", "ls /home/mkyong/");
+     if(command.equals("clear")) Terminal.txtArea.setText("");
+    
+    if(System.getProperty("os.name").equals("Linux"))
+    processBuilder.command("bash", "-c", command);
+    else
+	processBuilder.command("cmd.exe", "/c", command);
 
 	// Run a shell script
 	//processBuilder.command("path/to/hello.sh");
@@ -220,9 +223,7 @@ class CommandProcessor {
 	// -- Windows --
 
 	//Run a command
-    if(command.equals("clear")) Terminal.txtArea.setText("");
-	processBuilder.command("cmd.exe", "/c", command);
-
+   
 	// Run a bat file
 	//processBuilder.command("C:\\Users\\mkyong\\hello.bat");
 

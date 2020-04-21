@@ -283,11 +283,16 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		});
 
 		JMenuItem nw=new JMenuItem("New Window");
-		 nw.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
+		nw.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		nw.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try{
-			Process process = Runtime.getRuntime().exec("java -cp '.;lib/jars/*' RSTAUIDemoApp");
+			if(System.getProperty("os.name").equals("Linux")){
+				Process process = Runtime.getRuntime().exec("java -cp '.:lib/jars/*' RSTAUIDemoApp .");
+			}
+			else{
+				Process process= Runtime.getRuntime().exec("java -cp \".;lib/jars/*\" RSTAUIDemoApp .");
+			}
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -463,14 +468,55 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			}
 		}
 		});
+
+		
         menu.add(t);
 		mb.add(menu);
 
         menu = new JMenu("  Help  ");
-        menu.add(new JMenuItem("Documentation"));
-		menu.add(new JMenuItem("License"));
+       JMenuItem doc=new JMenuItem("Documentation");
+		doc.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+		 try {
+                   if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+    Desktop.getDesktop().browse(new URI("https://github.com/nimishbongale/code-editor/blob/master/README.md"));
+}
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+		}
+		});
+        menu.add(doc);
+
+		JMenuItem lic=new JMenuItem("License");
+		lic.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+		 try {
+                   if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+    Desktop.getDesktop().browse(new URI("https://github.com/nimishbongale/code-editor/blob/master/LICENSE"));
+}
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+		}
+		});
+
+        menu.add(lic);
         menu.addSeparator();
-        menu.add(new JMenuItem("About"));
+       	JMenuItem about=new JMenuItem("About");
+		about.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent ev) {
+		 try {
+                   if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+    Desktop.getDesktop().browse(new URI("http://n45editor.surge.sh"));
+}
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+		}
+		});
+
+        menu.add(about);
 		mb.add(menu);
 
 		return mb;
@@ -585,7 +631,11 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
         //     String abso = f.getPath(); 
 		String selectedPath = tree.getSelectionPath().toString();
 		String ans[]=selectedPath.split(",", 0);
-		String pathy=ans[ans.length-2].toString()+"\\"+(ans[ans.length-1].toString().substring(0,ans[ans.length-1].length()-1)).trim();
+		String pathy="";
+		if(System.getProperty("os.name").equals("Linux"))
+		pathy=ans[ans.length-2].toString()+"/"+(ans[ans.length-1].toString().substring(0,ans[ans.length-1].length()-1)).trim();
+    else
+	pathy=ans[ans.length-2].toString()+"\\"+(ans[ans.length-1].toString().substring(0,ans[ans.length-1].length()-1)).trim();
 		 try {
 			 		textArea=inittextarea();
 					 String pathe=pathy.substring(1,pathy.length());

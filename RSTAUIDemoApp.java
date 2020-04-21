@@ -1,43 +1,51 @@
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.*; //importing abstract window toolkit
 
 import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UIManager.LookAndFeelInfo; //swing UI manager, for different styles
 import javax.swing.text.BadLocationException;
 
-import org.fife.rsta.ui.CollapsibleSectionPanel;
+import org.fife.rsta.ui.CollapsibleSectionPanel; //rsta=rsyntaxtextarea, a textarea component which supports code highlighting
 import org.fife.rsta.ui.GoToDialog;
 import org.fife.rsta.ui.SizeGripIcon;
 import org.fife.rsta.ui.search.FindDialog;
 import org.fife.rsta.ui.search.ReplaceDialog;
 import org.fife.rsta.ui.search.SearchEvent;
 import org.fife.rsta.ui.search.SearchListener;
-import org.fife.ui.autocomplete.*;
+/*imports from external jars*/
+
+import org.fife.ui.autocomplete.*; //for autocomplete features
 import org.fife.ui.rtextarea.*;
 import org.fife.ui.rsyntaxtextarea.*;
 
 import java.io.*;
 import java.util.*;
+/*regular imports*/
 
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
+/*JTree for displaying directory structure*/
 
 import java.nio.file.*;
+/* for file stream handling*/
 import java.awt.Robot;
+/*to mimick keypresses*/
 import javax.swing.plaf.metal.*;
+/*MetalTabbedPaneUI schemes*/
+
 import javax.swing.plaf.*;
 import java.awt.event.*;
 import java.net.*;
 import javax.swing.text.View;
 
-class CustomTabbedPaneUI extends MetalTabbedPaneUI
+class CustomTabbedPaneUI extends MetalTabbedPaneUI //making a custom tabbed pane for showing multiple files
 {
-   Rectangle xRect;
+   Rectangle xRect;//tab shape
    protected void installListeners() {
       super.installListeners();
-      tabPane.addMouseListener(new MyMouseHandler());
+      tabPane.addMouseListener(new MyMouseHandler());//adding a mouse handler to listen to mouse clicks
    }
   
    protected void paintTab(Graphics g, int tabPlacement,
@@ -45,29 +53,29 @@ class CustomTabbedPaneUI extends MetalTabbedPaneUI
                            Rectangle iconRect, Rectangle textRect) {
       super.paintTab(g, tabPlacement, rects, tabIndex, iconRect, textRect);
       Font f = g.getFont();
-      g.setFont(new Font("Consolas", Font.BOLD, 15));
+      g.setFont(new Font("Consolas", Font.BOLD, 15));//setting font of text inside tab
       FontMetrics fm = g.getFontMetrics(g.getFont());
-      int charWidth = fm.charWidth('x');
+      int charWidth = fm.charWidth('x');//char inside close button
       int maxAscent = fm.getMaxAscent();
       g.drawString("x", textRect.x + textRect.width - 3, textRect.y + textRect.height - 3);
       g.drawRect(textRect.x+textRect.width-5,
                  textRect.y+textRect.height-maxAscent, charWidth+2, maxAscent-1);
       xRect = new Rectangle(textRect.x+textRect.width-5,
-                 textRect.y+textRect.height-maxAscent, charWidth+2, maxAscent-1);
+                 textRect.y+textRect.height-maxAscent, charWidth+2, maxAscent-1);//final tab shape
       g.setFont(f);
     }
   
     class MyMouseHandler extends MouseAdapter {
         public void mousePressed(MouseEvent e) {
-			int tabIndex = tabForCoordinate(tabPane, e.getX(), e.getY());
+			int tabIndex = tabForCoordinate(tabPane, e.getX(), e.getY());//get the current tab index clicked
 			JTabbedPane tabPane = (JTabbedPane)e.getSource();
-			String ans=tabPane.getTitleAt(tabIndex);
+			String ans=tabPane.getTitleAt(tabIndex);//get the title of the tab, filepath
 			if(!ans.equals("blank")){
-				RSTAUIDemoApp.filepath=ans.trim();
+				RSTAUIDemoApp.filepath=ans.trim(); //set trimmed filepath to current file
 			}
             if (xRect.contains(e.getPoint())) {
-			   if(tabIndex>0)
-               tabPane.remove(tabIndex);
+			   if(tabIndex>0)//don't remove the blank tab, leads to UI issues
+               tabPane.remove(tabIndex);//remove tab
             }
         }
     }
@@ -75,31 +83,31 @@ class CustomTabbedPaneUI extends MetalTabbedPaneUI
 
 
 public final class RSTAUIDemoApp extends JFrame implements SearchListener {
-	private JPanel csp;
+	private JPanel csp; 
 	private RSyntaxTextArea textArea;
 	private JTabbedPane tabbedPane; 
-	private FindDialog findDialog;
-	private ReplaceDialog replaceDialog;
-	private StatusBar statusBar;
-	private String filename;
-	public static String filepath;
-	public static String folderpath;
+	private FindDialog findDialog; //Find text in textArea
+	private ReplaceDialog replaceDialog; //Find and Replace text in textArea
+	private StatusBar statusBar; //Status bar for showing important messages
+	private String filename; //current filename
+	public static String filepath; //current filepath
+	public static String folderpath; //current folderpath
 
 	public RSyntaxTextArea inittextarea(){
 		textArea = new RSyntaxTextArea(38, 150);
-		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-		textArea.setCodeFoldingEnabled(true);
-		textArea.setMarkOccurrences(true);
-		return textArea;
+		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA); //by default, code editor syntaxes according to java synatxes
+		textArea.setCodeFoldingEnabled(true);//code folding enable
+		textArea.setMarkOccurrences(true); //mark previous occurences
+		return textArea;//return current instance of textarea
 	}
 	
-	private RSTAUIDemoApp(String fop) {
+	private RSTAUIDemoApp(String fop) { //parameterized constructor accepting folderpath
 		initSearchDialogs();
-		folderpath=fop;
-		UIManager.put("TabbedPane.selected", Color.white);
+		folderpath=fop; //make static variable=current folderpath
+		UIManager.put("TabbedPane.selected", Color.white);//selected tab colour=white, unselected gray 
 		tabbedPane= new JTabbedPane();
-		tabbedPane.setUI(new CustomTabbedPaneUI());
-		RTextScrollPane sp = new RTextScrollPane(textArea);
+		tabbedPane.setUI(new CustomTabbedPaneUI()); //setUI of tabbedpane
+		RTextScrollPane sp = new RTextScrollPane(textArea); //add it to a scrollpane
 		tabbedPane.addTab("  blank    ",null,new RTextScrollPane(inittextarea()),
                   "File1");
 		JPanel contentPane = new JPanel(new BorderLayout());
@@ -107,29 +115,28 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		csp = new JPanel();
 		JPanel jp=new JPanel();
 		csp.setLayout(new BoxLayout(csp, BoxLayout.Y_AXIS));
-		setTitle("N45 Editor | "+fop);
-		jp.add(new FileTree(new File(fop)));
-		jp.add(csp);
-		csp.add(tabbedPane);
+		setTitle("N45 Editor | "+fop); //title of texteditor + folderpath
+		jp.add(new FileTree(new File(fop))); //add the JTree component on the left
+		jp.add(csp); //add the textarea + tab combination
+		csp.add(tabbedPane); //add tabbedpane to Jpanel
 		setJMenuBar(createMenuBar());
-		contentPane.add(jp);
+		contentPane.add(jp); //add a menubar
 
 		ErrorStrip errorStrip = new ErrorStrip(textArea);
 		contentPane.add(errorStrip, BorderLayout.LINE_END);
 		statusBar = new StatusBar();
-		// contentPane.add(jd);
-		contentPane.add(statusBar, BorderLayout.SOUTH);
+		contentPane.add(statusBar, BorderLayout.SOUTH); //add the statusBar to the bottom
        try {
-            Theme theme = Theme.load(getClass().getResourceAsStream("/lib/styles/default.xml"));
-            theme.apply(textArea);
+            Theme theme = Theme.load(getClass().getResourceAsStream("/lib/styles/default.xml"));//initially default theme
+            theme.apply(textArea);//apply to textarea
             } 
             catch (Exception ioe) { // Never happens
                 ioe.printStackTrace();
             }
         
-	  CompletionProvider provider = createCompletionProvider();
+	  CompletionProvider provider = createCompletionProvider(); //Completion provider, external jar
       AutoCompletion ac = new AutoCompletion(provider);
-      ac.install(textArea);
+      ac.install(textArea); //adds basic autocompletion to the textarea
 
       setContentPane(contentPane);
       setTitle("N45Editor");
@@ -138,23 +145,14 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
       setLocationRelativeTo(null);
 	}
 
-	protected JComponent makeTextPanel(String text) {
-    JPanel panel = new JPanel(false);
-    JLabel filler = new JLabel(text);
-    filler.setHorizontalAlignment(JLabel.CENTER);
-    panel.setLayout(new GridLayout(1, 1));
-    panel.add(filler);
-    return panel;
-}
-
      private CompletionProvider createCompletionProvider() {
       DefaultCompletionProvider provider = new DefaultCompletionProvider();
 	  try{
-	  File fil = new File("keywords.txt");
+	  File fil = new File("keywords.txt"); //read from file keywords.txt
 	  Scanner scan = new Scanner(new FileReader(fil.getPath()));
         while (scan.hasNext()) {
-			provider.addCompletion(new BasicCompletion(provider, scan.nextLine()));
-        }
+			provider.addCompletion(new BasicCompletion(provider, scan.nextLine()));//completion is added and enabled
+        }/*Ctrl + <space> activates completion*/
 	  }
 	  catch(Exception e){
 		  e.printStackTrace();
@@ -162,39 +160,41 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
       provider.addCompletion(new ShorthandCompletion(provider, "sysout",
             "System.out.println(", "System.out.println("));
+			/*Basic shorthand, upon typing sysout, and pressing Ctrl + <space>, System.out.println overwrrites sysout*/
       provider.addCompletion(new ShorthandCompletion(provider, "syserr",
             "System.err.println(", "System.err.println("));
 		provider.addCompletion(new ShorthandCompletion(provider, "psvm",
             "public static void main(String args[]){", "public static void main(String args[]){"));
 		provider.addCompletion(new ShorthandCompletion(provider, "p",
-            "print()", "print()"));
-
+            "print()", "print()"));/*some basic support for python*/
+		provider.addCompletion(new ShorthandCompletion(provider, "d",
+            "def()", "def()"));
       return provider;
    }
 
-
+	/*this function gets called in a loop to add the find and replace dialog menus*/
 	private void addItem(Action a, ButtonGroup bg, JMenu menu) {
 		JRadioButtonMenuItem item = new JRadioButtonMenuItem(a);
 		bg.add(item);
 		menu.add(item);
 	}
 
+	/* function called while saving a file*/
 	private void saveFile(JMenuItem savefile){
-		JFileChooser fileChoose = new JFileChooser();
+		JFileChooser fileChoose = new JFileChooser(); //filechooser dialog
         int option = fileChoose.showSaveDialog(savefile);
-
         /*
              * ShowSaveDialog instead of showOpenDialog if the user clicked OK
              * (and not cancel)
          */
-        if (option == JFileChooser.APPROVE_OPTION) {
+        if (option == JFileChooser.APPROVE_OPTION) { //if approved
             try {
                 File openFile = fileChoose.getSelectedFile();
 				filename=openFile.getName();
 				filepath=openFile.getPath();
-				tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(),"    "+filepath+"      ");
+				tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(),"    "+filepath+"      "); //change the title
                 BufferedWriter out = new BufferedWriter(new FileWriter(filepath));
-                out.write(textArea.getText());
+                out.write(textArea.getText()); //write contents of textarea into the file
                 out.close();
                 // edit = false;
             } catch (Exception ex) { // again, catch any exceptions and...
@@ -206,13 +206,11 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
 
 	private JMenuBar createMenuBar() {
-
         JMenuBar mb = new JMenuBar();
-		JMenu menu; 
-
+		JMenu menu;//menu inside menubar
 		JMenuItem openfile=new JMenuItem("Open File");
         openfile.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
-
+		//set shortcut tooltip
 		openfile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
             JFileChooser open = new JFileChooser(); // open up a file chooser (a dialog for the user to  browse files to open)
@@ -223,8 +221,8 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
                     File openFile = open.getSelectedFile();
 					filename=openFile.getName();
 					filepath=openFile.getPath();
-					textArea=inittextarea();
-					tabbedPane.addTab("   "+filepath+"      ", null,new RTextScrollPane(textArea),"Does nothing at all");
+					textArea=inittextarea();//new textarea object
+					tabbedPane.addTab("   "+filepath+"      ", null,new RTextScrollPane(textArea),"blank");
 					Scanner scan = new Scanner(new FileReader(filepath));
                     while (scan.hasNext()) {
 						textArea.setText(textArea.getText()+"\n"+scan.nextLine());
@@ -243,11 +241,11 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
     	public void actionPerformed(ActionEvent ev) {
              Object[] options = {"Save", "Return"};
                 int n = JOptionPane.showOptionDialog(newfile, "Do you want to save the file at first ?", "Question",
-                        JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
+                        JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);//show dialog
                 if (n == 0) {
-                    saveFile(newfile);
+                    saveFile(newfile);//save
                 } else if (n == 1) {
-                    textArea.setText("");
+                    textArea.setText(""); //clear textarea
                 }
     	}
 		});
@@ -260,13 +258,13 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		}
 		});
 
-		JMenuItem sfile=new JMenuItem("Save");
+		JMenuItem sfile=new JMenuItem("Save"); //simple Ctrl + S
 		 sfile.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		sfile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			  try {
                     FileWriter myWriter = new FileWriter(filepath);
-      				myWriter.write(textArea.getText());
+      				myWriter.write(textArea.getText()); //gettext and write into file
       				myWriter.close();
                 } catch (Exception ex) {
                     System.err.println(ex.getMessage());
@@ -274,21 +272,21 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		}
 		});
 
-		JMenuItem xexit=new JMenuItem("Exit");
+		JMenuItem xexit=new JMenuItem("Exit"); //quit
 		 xexit.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		xexit.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
-			 System.exit(0);
+			 System.exit(0); //quit program
 		}
 		});
 
-		JMenuItem nw=new JMenuItem("New Window");
+		JMenuItem nw=new JMenuItem("New Window"); //for a new window, just run the runnning command again
 		nw.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		nw.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try{
-			if(System.getProperty("os.name").equals("Linux")){
-				Process process = Runtime.getRuntime().exec("java -cp '.:lib/jars/*' RSTAUIDemoApp .");
+			if(System.getProperty("os.name").equals("Linux")){ //for linux and windows
+				Process process = Runtime.getRuntime().exec("java -cp '.:lib/jars/*' RSTAUIDemoApp .");//command to run
 			}
 			else{
 				Process process= Runtime.getRuntime().exec("java -cp \".;lib/jars/*\" RSTAUIDemoApp .");

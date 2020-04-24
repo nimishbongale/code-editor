@@ -1,1 +1,1 @@
-java -cp ".:lib/jars/*" RSTAUIDemoApp .
+java -cp ".:lib/jars/*" RSTAUIDemoApp $1

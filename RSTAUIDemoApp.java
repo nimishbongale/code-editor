@@ -100,6 +100,11 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		textArea.setMarkOccurrences(true); //mark previous occurences
 		return textArea;//return current instance of textarea
 	}
+
+	@Override
+	public String getSelectedText(){
+		return textArea.getText();
+	}
 	
 	private RSTAUIDemoApp(String fop) { //parameterized constructor accepting folderpath
 		initSearchDialogs();
@@ -181,6 +186,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
 	/* function called while saving a file*/
 	private void saveFile(JMenuItem savefile){
+		statusBar.setLabel("Waiting");
 		JFileChooser fileChoose = new JFileChooser(); //filechooser dialog
         int option = fileChoose.showSaveDialog(savefile);
         /*
@@ -196,7 +202,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
                 BufferedWriter out = new BufferedWriter(new FileWriter(filepath));
                 out.write(textArea.getText()); //write contents of textarea into the file
                 out.close();
-                // edit = false;
+				statusBar.setLabel("Ready");
             } catch (Exception ex) { // again, catch any exceptions and...
                 // ...write to the debug console
                 System.err.println(ex.getMessage());
@@ -213,6 +219,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		//set shortcut tooltip
 		openfile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
+			statusBar.setLabel("Waiting");
             JFileChooser open = new JFileChooser(); // open up a file chooser (a dialog for the user to  browse files to open)
             int option = open.showOpenDialog(openfile); // get the option that the user selected (approve or cancel)
             if (option == JFileChooser.APPROVE_OPTION) {
@@ -227,6 +234,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
                     while (scan.hasNext()) {
 						textArea.setText(textArea.getText()+"\n"+scan.nextLine());
                     }
+					statusBar.setLabel("Ready");
                 } catch (Exception ex) { // catch any exceptions, and...
                     // ...write to the debug console
                     System.err.println(ex.getMessage());
@@ -239,6 +247,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		 newfile.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		newfile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
+			statusBar.setLabel("Waiting");
              Object[] options = {"Save", "Return"};
                 int n = JOptionPane.showOptionDialog(newfile, "Do you want to save the file at first ?", "Question",
                         JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);//show dialog
@@ -247,6 +256,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
                 } else if (n == 1) {
                     textArea.setText(""); //clear textarea
                 }
+				statusBar.setLabel("Ready");
     	}
 		});
 
@@ -262,10 +272,12 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		 sfile.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		sfile.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
+			statusBar.setLabel("Waiting");
 			  try {
                     FileWriter myWriter = new FileWriter(filepath);
       				myWriter.write(textArea.getText()); //gettext and write into file
       				myWriter.close();
+					statusBar.setLabel("Ready");
                 } catch (Exception ex) {
                     System.err.println(ex.getMessage());
                 }
@@ -284,13 +296,15 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		nw.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		nw.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
+			statusBar.setLabel("Waiting");
 			try{
 			if(System.getProperty("os.name").equals("Linux")){ //for linux and windows
-				Process process = Runtime.getRuntime().exec("java -cp '.:lib/jars/*' RSTAUIDemoApp .");//command to run
+				Process process = Runtime.getRuntime().exec("java -cp '.:lib/jars/*' RSTAUIDemoApp .");//command to run in linux
 			}
 			else{
-				Process process= Runtime.getRuntime().exec("java -cp \".;lib/jars/*\" RSTAUIDemoApp .");
+				Process process= Runtime.getRuntime().exec("java -cp \".;lib/jars/*\" RSTAUIDemoApp .");//command to run in windows
 			}
+			statusBar.setLabel("Ready");
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -298,24 +312,26 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		}
 		});
 
-		JMenuItem openfolder=new JMenuItem("Open Folder");
+		JMenuItem openfolder=new JMenuItem("Open Folder");//open another folder in a new window 
 		 openfolder.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		openfolder.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
+			statusBar.setLabel("Waiting");
 			JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             int option = fileChooser.showOpenDialog(openfolder);
             if(option == JFileChooser.APPROVE_OPTION){
-               File file = fileChooser.getSelectedFile();
-			   String ar[]={file.getPath()};
-			   main(ar);
+               File file = fileChooser.getSelectedFile();//selected file from the dialog 
+			   String ar[]={file.getPath()};//get its path
+			   statusBar.setLabel("Ready");
+			   main(ar);//run main with the folderpath
             }
 		}
 		});
 
 
         menu = new JMenu("  File  ");
-
+		/*Add all the above options to a menu*/
 		menu.add(newfile);
         menu.add(nw);
 		menu.add(openfile);
@@ -331,10 +347,10 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		undo.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 			try {	
- 	      	Robot robot=new Robot();
+ 	      	Robot robot=new Robot();/* Robot simulates keypress*/
     		robot.keyPress(KeyEvent.VK_CONTROL);
     		robot.keyPress(KeyEvent.VK_Z);
-			robot.keyRelease(KeyEvent.VK_Z);
+			robot.keyRelease(KeyEvent.VK_Z);/*Ctrl + Z*/
     		robot.keyRelease(KeyEvent.VK_CONTROL);
 } catch (Exception e) {
         e.printStackTrace();
@@ -342,7 +358,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		}
 		});
 
-        menu.add(undo);
+        menu.add(undo); //Add undo option to menu
 
 		JMenuItem redo=new JMenuItem("Redo");
 		 redo.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
@@ -353,7 +369,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
     robot.keyPress(KeyEvent.VK_CONTROL);
     		robot.keyPress(KeyEvent.VK_Y);
-			robot.keyRelease(KeyEvent.VK_Y);
+			robot.keyRelease(KeyEvent.VK_Y);/*Ctrl + Y*/
     		robot.keyRelease(KeyEvent.VK_CONTROL);
 		} catch (Exception e) {
         e.printStackTrace();
@@ -369,7 +385,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			try {	
  	      	Robot robot=new Robot();
     		robot.keyPress(KeyEvent.VK_CONTROL);
-    		robot.keyPress(KeyEvent.VK_X);
+    		robot.keyPress(KeyEvent.VK_X);/*Ctrl + X*/
 			robot.keyRelease(KeyEvent.VK_X);
     		robot.keyRelease(KeyEvent.VK_CONTROL);
 } catch (Exception e) {
@@ -387,7 +403,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			try {	
  	      	Robot robot=new Robot();
     		robot.keyPress(KeyEvent.VK_CONTROL);
-    		robot.keyPress(KeyEvent.VK_C);
+    		robot.keyPress(KeyEvent.VK_C);/*Ctrl + C*/
 			robot.keyRelease(KeyEvent.VK_C);
     		robot.keyRelease(KeyEvent.VK_CONTROL);
 } catch (Exception e) {
@@ -405,7 +421,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			try {	
  	      	Robot robot=new Robot();
     		robot.keyPress(KeyEvent.VK_CONTROL);
-    		robot.keyPress(KeyEvent.VK_V);
+    		robot.keyPress(KeyEvent.VK_V);/*Ctrl + V*/
 			robot.keyRelease(KeyEvent.VK_V);
     		robot.keyRelease(KeyEvent.VK_CONTROL);
 } catch (Exception e) {
@@ -428,6 +444,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		JMenu submenu2=new JMenu("Style");
 		ButtonGroup b = new ButtonGroup();
 		String[] info = {"dark","darkii","default-alt","default","eclipse","idea","idle","jce","vs"};
+		/*Change look and feel depending on different XMl StyleSheets*/
 		for (String inf : info) {
 			JRadioButtonMenuItem rbMenuItem= new JRadioButtonMenuItem(inf);
 			b.add(rbMenuItem);
@@ -436,7 +453,8 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
     	public void actionPerformed(ActionEvent ev) {
 			try {	
 				Theme theme = Theme.load(getClass().getResourceAsStream("/lib/styles/"+inf+".xml"));
-            	theme.apply(textArea);
+				/*load XML*/
+            	theme.apply(textArea);//apply theme to textarea
 } catch (Exception e) {
         e.printStackTrace();
 }
@@ -448,18 +466,21 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		mb.add(menu);
 
         menu= new JMenu("  Search  ");
-		menu.add(new JMenuItem(new ShowFindDialogAction()));
-		menu.add(new JMenuItem(new ShowReplaceDialogAction()));
-		menu.add(new JMenuItem(new GoToLineAction()));
+		menu.add(new JMenuItem(new ShowFindDialogAction()));//Add default dialogactionbutton
+		menu.add(new JMenuItem(new ShowReplaceDialogAction())); //Add default replace dialog
+		menu.add(new JMenuItem(new GoToLineAction())); //Add default gotoline option
 		mb.add(menu);
 
         menu = new JMenu("  Run  ");
-		JMenuItem t=new JMenuItem("New Terminal");
+		JMenuItem t=new JMenuItem("New Terminal"); //Open the terminal in a new JFrame
 		 t.setAccelerator( KeyStroke.getKeyStroke(KeyEvent.VK_T, Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		t.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
+			statusBar.setLabel("Waiting");
 			try{
 			Process process = Runtime.getRuntime().exec("java TestTerminal");
+			/*opens Terminal*/
+		statusBar.setLabel("Ready");
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -473,12 +494,14 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
         menu = new JMenu("  Help  ");
        JMenuItem doc=new JMenuItem("Documentation");
+	   //README.md
 		doc.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 		 try {
                    if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
     Desktop.getDesktop().browse(new URI("https://github.com/nimishbongale/code-editor/blob/master/README.md"));
 }
+		//opens mentioned URL in default browser
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
@@ -487,6 +510,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
         menu.add(doc);
 
 		JMenuItem lic=new JMenuItem("License");
+		//LICENSE
 		lic.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 		 try {
@@ -502,6 +526,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
         menu.add(lic);
         menu.addSeparator();
        	JMenuItem about=new JMenuItem("About");
+		//ABOUT
 		about.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent ev) {
 		 try {
@@ -516,16 +541,8 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 
         menu.add(about);
 		mb.add(menu);
-
 		return mb;
 	}
-
-
-	@Override
-	public String getSelectedText() {
-		return textArea.getSelectedText();
-	}
-
 	 
 	private void initSearchDialogs() {
 
@@ -536,19 +553,11 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		// regex, etc.).
 		SearchContext context = findDialog.getSearchContext();
 		replaceDialog.setSearchContext(context);
-
-		// Create tool bars and tie their search contexts together also.
-		// findToolBar = new FindToolBar(this);
-		// findToolBar.setSearchContext(context);
-		// replaceToolBar = new ReplaceToolBar(this);
-		// replaceToolBar.setSearchContext(context);
-
 	}
 
 
 	/**
-	 * Listens for events from our search dialogs and actually does the dirty
-	 * work.
+	 * Listens for events from our search dialogs
 	 */
 	@Override
 	public void searchEvent(SearchEvent e) {
@@ -599,6 +608,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		statusBar.setLabel(text);
 	}
 
+	/*Driver Code*/
 	public static void main(String args[]) {
 		SwingUtilities.invokeLater(() -> {
 			try {
@@ -621,25 +631,22 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
     // Make a tree list with all the nodes, and make it a JTree
     JTree tree = new JTree(addNodes(null, dir));
 
-    // Add a listener
     tree.addTreeSelectionListener(new TreeSelectionListener() {
       public void valueChanged(TreeSelectionEvent e) {
-		// System.out.println(tree.getLastSelectedPathComponent().getUserObject().toString());
-		// File f = new File(node.toString());  
-        //     String abso = f.getPath(); 
 		String selectedPath = tree.getSelectionPath().toString();
-		String ans[]=selectedPath.split(",", 0);
+		String ans[]=selectedPath.split(",", 0); //to get relative path
 		String pathy="";
 		if(System.getProperty("os.name").equals("Linux"))
 		pathy=ans[ans.length-2].toString()+"/"+(ans[ans.length-1].toString().substring(0,ans[ans.length-1].length()-1)).trim();
     else
 	pathy=ans[ans.length-2].toString()+"\\"+(ans[ans.length-1].toString().substring(0,ans[ans.length-1].length()-1)).trim();
+	//to handle cases in different OS
 		 try {
-			 		textArea=inittextarea();
+			 		textArea=inittextarea();//inittextarea returns a RSyntaxTextArea object
 					 String pathe=pathy.substring(1,pathy.length());
 					Scanner scan = new Scanner(new FileReader(pathe));
                     while (scan.hasNext()) {
-						textArea.setText(textArea.getText()+"\n"+scan.nextLine());
+						textArea.setText(textArea.getText()+"\n"+scan.nextLine());//Read and write
                     }
 			 		tabbedPane.addTab("    "+pathe+"      ",null,new RTextScrollPane(textArea),
                   "File");
@@ -659,7 +666,10 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
     add(BorderLayout.CENTER, scrollpane);
   }
 
-  /** Add nodes from under "dir" into curTop. Highly recursive. */
+  /** 
+  Add nodes from under "dir" into curTop. Highly recursive. 
+  Carry out DFS to get complete directory structure
+  */
   DefaultMutableTreeNode addNodes(DefaultMutableTreeNode curTop, File dir) {
     String curPath = dir.getPath();
     DefaultMutableTreeNode curDir = new DefaultMutableTreeNode(curPath);
@@ -695,10 +705,9 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
   public Dimension getMinimumSize() {
     return new Dimension(200, 400);
   }
-
   public Dimension getPreferredSize() {
     return new Dimension(200, 643);
-  }
+  }//Adjust according to requirement
 	 }
 	private class GoToLineAction extends AbstractAction {
 
@@ -719,7 +728,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			GoToDialog dialog = new GoToDialog(RSTAUIDemoApp.this);
 			dialog.setMaxLineNumberAllowed(textArea.getLineCount());
 			dialog.setVisible(true);
-			int line = dialog.getLineNumber();
+			int line = dialog.getLineNumber();//defualt searches in textarea
 			if (line>0) {
 				try {
 					textArea.setCaretPosition(textArea.getLineStartOffset(line-1));
@@ -736,14 +745,11 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
      * Changes the Look and Feel.
      */
 	private class LookAndFeelAction extends AbstractAction {
-
 		private LookAndFeelInfo info;
-
 		LookAndFeelAction(LookAndFeelInfo info) {
 			putValue(NAME, info.getName());
-			this.info = info;
+			this.info = info;//for getting info from the radio buttons
 		}
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
@@ -801,10 +807,10 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		}
 	}
     /**
-     * The status bar for this application.
+     * The status bar for this application
      */
 	private static class StatusBar extends JPanel {
-		private JLabel label;
+		public JLabel label;
 		StatusBar() {
 			label = new JLabel("Ready");
 			setLayout(new BorderLayout());
@@ -812,8 +818,8 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 			add(new JLabel(new SizeGripIcon()), BorderLayout.LINE_END);
 		}
 
-		void setLabel(String label) {
-			this.label.setText(label);
+		void setLabel(String l) {
+			label.setText(l);
 		}
 	}
 }

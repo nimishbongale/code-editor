@@ -6,10 +6,10 @@
 
 ![](https://github.com/nimishbongale/code_editor/workflows/.github/workflows/main.yml/badge.svg)
 
-N45 is a fast, yet simple Code Editor built using Java. 
+N45 is a fast, yet simple Code Editor built using Java. Supports all basic features of a code editor, and more. Code away!
 
 <p align="center">
-  <img src="https://i.ibb.co/smLxCdf/ui.png"/>
+  <img src="https://i.ibb.co/0D9ghJN/image-2.png"/>
 </p>
 
 ## Features

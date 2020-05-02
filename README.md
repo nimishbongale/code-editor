@@ -101,6 +101,10 @@ Now use
 n45edit .
 ``` 
 
+## Acknowledgements
+
+1. [bobbylight](https://github.com/bobbylight)
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

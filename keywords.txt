@@ -124,3 +124,12 @@ async
 el
 or
 yield
+head
+body
+script
+style
+div
+span
+href
+src
+img

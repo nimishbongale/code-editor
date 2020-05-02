@@ -4,10 +4,12 @@
   <img src="https://i.ibb.co/Z11hk0Q/logo.png"/>
 </p>
 
-![](https://img.shields.io/badge/build-passing%20-green)
-![](https://img.shields.io/badge/built%20with-java-orange)
-![](https://img.shields.io/badge/cross--platform-yes-brightgreen)
-![](https://img.shields.io/badge/multi%20language-yes-yellowgreen)
+<p align="center">
+<img src="https://img.shields.io/badge/build-passing%20-green"/>
+<img src="https://img.shields.io/badge/built%20with-java-orange"/>
+<img src="https://img.shields.io/badge/cross--platform-yes-brightgreen"/>
+<img src="https://img.shields.io/badge/multi%20language-yes-yellowgreen"/>
+</p>
 
 N45 is a fast,simple yet elegant Code Editor. Supports all basic features of a code editor, and more. Built using Java.  Being highly user friendly, it does not take too long to get used to it. Be ready to Code away!
 

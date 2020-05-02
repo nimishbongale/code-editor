@@ -6,7 +6,7 @@
 
 ![](https://github.com/nimishbongale/code_editor/workflows/.github/workflows/main.yml/badge.svg)
 
-N45 is a fast, yet simple Code Editor built using Java. Supports all basic features of a code editor, and more. Code away!
+N45 is a fast,simple yet elegant Code Editor. Supports all basic features of a code editor, and more. Built using Java.  Being highly user friendly, it does not take too long to get used to it. Be ready to Code away!
 
 <p align="center">
   <img src="https://i.ibb.co/0D9ghJN/image-2.png"/>
@@ -32,7 +32,9 @@ N45 is a fast, yet simple Code Editor built using Java. Supports all basic featu
 
 9. **Directory Tree** - A visible and selectable directory tree open in the current folder.
 
-10. **Multible Tabs, Multiple Instances** - Multiple files can be opened in multiple tabs at the same time. Several different instances of the code editor can be operated on at the same time.  
+10. **Multible Tabs, Multiple Instances** - Multiple files can be opened in multiple tabs at the same time. Several different instances of the code editor can be operated on at the same time.
+
+10. **Easy Installation** - A few simple commands, and you are good to go!
 
 
 ## Requirements

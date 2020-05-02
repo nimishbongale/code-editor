@@ -14,25 +14,25 @@ N45 is a fast, yet simple Code Editor built using Java.
 
 ## Features
 
-1. Cross Platform - The editor is available for Mac, Windows and Linux and on every computer you own, no matter what operating system it uses.
+1. **Cross Platform** - The editor is available for Mac, Windows and Linux and on every computer you own, no matter what operating system it uses.
 
-2. High Performance - N45Editor is built from Swing components, providing for unmatched responsiveness.
+2. **High Performance** - N45Editor is built from Swing components, providing for unmatched responsiveness.
 
-3. Colour Scheme Support - Different colours are to highlight the code with adapt functions and usage.
+3. **Colour Scheme Support** - Different colours are to highlight the code with adapt functions and usage.
 
-4. File and Folder Operations - This editor provides the means to open, close, save, save as files to disk and to open existing files. Usually there is a menu along the top or bottom of the window.
+4. **File and Folder Operations** - This editor provides the means to open, close, save, save as files to disk and to open existing files. Usually there is a menu along the top or bottom of the window.
 
-5. Cut,Paste,Undo,Redo - The editor let you select or cut text and copy or move it elsewhere. Undo and Redo is also supported.
+5. **Cut,Paste,Undo,Redo** - The editor let you select or cut text and copy or move it elsewhere. Undo and Redo is also supported.
 
-6. Search And Replace - It lets you search for specified strings of characters. It also allows to replace the strings when needed.
+6. **Search And Replace** - It lets you search for specified strings of characters. It also allows to replace the strings when needed.
 
-7. Code Completion - Small snippets and frequently appearing words in programming can be auto completed (Ctrl+Space)
+7. **Code Completion** - Small snippets and frequently appearing words in programming can be auto completed (Ctrl+Space)
 
-8. Inbuilt terminal - You can run and see the output of your files without leaving the editor.
+8. **Inbuilt terminal** - You can run and see the output of your files without leaving the editor.
 
-9. Directory Tree - A visible and selectable directory tree open in the current folder.
+9. **Directory Tree** - A visible and selectable directory tree open in the current folder.
 
-10. Multible Tabs, Multiple Instance - Multiple files can be opened in multiple tabs at the same time. Several different instances of the code editor can be operated on at the same time.  
+10. **Multible Tabs, Multiple Instances** - Multiple files can be opened in multiple tabs at the same time. Several different instances of the code editor can be operated on at the same time.  
 
 
 ## Requirements

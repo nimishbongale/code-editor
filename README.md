@@ -51,8 +51,8 @@ N45 is a fast,simple yet elegant Code Editor. Supports all basic features of a c
 Use git or download zip. 
 
 ```git
-git clone https://github.com/nimishbongale/n45editor.git
-cd n45editor
+git clone https://github.com/nimishbongale/code-edito.git
+cd code-editor
 ```
 
 1. Windows

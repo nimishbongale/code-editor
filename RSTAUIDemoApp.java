@@ -98,7 +98,7 @@ public final class RSTAUIDemoApp extends JFrame implements SearchListener {
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA); //by default, code editor syntaxes according to java synatxes
 		textArea.setCodeFoldingEnabled(true);//code folding enable
 		textArea.setMarkOccurrences(true); //mark previous occurences
-		new AutoCompletion(createCompletionProvider()).install(textArea); //install completion provider on the rest of the textareas
+		new AutoCompletion(createCompletionProvider()).install(textArea); //install completion provider
 		return textArea;//return current instance of textarea
 	}
 
